@@ -1,25 +1,29 @@
 pipeline {
     agent any
+    environment {
+        LABS = credentials('labcreds')
+    }
     stages {
         stage('Build') {
             steps {
-                echo "build completed successfully version2"
-                }
+                sh '/home/iamsumit244/.local/bin/pipenv --rm || exit 0'
+                sh '/home/iamsumit244/.local/bin/pipenv install'
+            }
         }
         stage('Test') {
             steps {
-                echo "test completed successfully"
-                }
+                sh '/home/iamsumit244/.local/bin/pipenv run pytest'
+            }
         }
         stage('Package') {
             steps {
-                echo "package completed successfully"
-                }
+                sh 'zip -r retailproject.zip .'
+            }
         }
         stage('Deploy') {
             steps {
-                echo "deploy completed successfully"
-                }
+                sh 'sshpass -p $LABS_PSW scp -o StrictHostKeyChecking=no -r . $LABS_USR@g01.itversity.com:/home/itv021476/retailproject'
+            }
         }
     }
 }
